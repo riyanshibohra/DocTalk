@@ -1,0 +1,22 @@
+# PDF Processing
+PyPDF2>=3.0.0
+
+# Vector Store
+pinecone-client>=2.2.1
+
+# Language Models & Embeddings
+langchain>=0.0.200
+openai>=0.27.0
+tiktoken>=0.4.0
+
+# Speech Processing
+openai-whisper>=20230314
+elevenlabs>=0.2.24
+
+# Web Interface (for later)
+flask>=2.3.0
+python-dotenv>=1.0.0
+
+# Utilities
+numpy>=1.24.0
+pandas>=2.0.0 
