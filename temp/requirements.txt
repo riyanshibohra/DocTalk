@@ -1,0 +1,7 @@
+langchain 
+openai 
+whisper 
+elevenlabs 
+pinecone-client 
+python-dotenv
+PyPDF2
