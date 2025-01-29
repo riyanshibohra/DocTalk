@@ -1,3 +1,3 @@
-# DocTalk: Your AI Document Assistant
+# DocTalk: Your AI Document Voice Assistant
 
 🚧 Project in Progress 🚧
