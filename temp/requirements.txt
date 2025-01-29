@@ -2,4 +2,4 @@ pypdf2
 langchain
 pinecone-client
 whisper
-elevenlabs 
+elevenlabs
