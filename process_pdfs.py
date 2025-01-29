@@ -36,7 +36,7 @@ def chunk_text(text, chunk_size=1000, chunk_overlap=200):
 # Function to generate embeddings and store in Pinecone
 def store_embeddings(chunks):
     embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
-    index = pinecone.Index('your-index-name')
+    index = pinecone.Index('doctalk')
     for i, chunk in enumerate(chunks):
         embedding = embeddings.embed(chunk)
         index.upsert([(f'chunk-{i}', embedding)])
