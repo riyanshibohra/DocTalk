@@ -29,5 +29,11 @@ step 4: query retrieval with langchain
 - synthesize answers
 
 step 5: speech-to-text with whisper
+- use whisper to convert speech to text
+
 step 6: text-to-speech with elevenlabs
+- use elevenlabs to convert text to speech
+
 step 7: combine everything and test together
+- combine speech-to-text, text-to-speech, and retrieval chain
+- test together to ensure smooth integration
