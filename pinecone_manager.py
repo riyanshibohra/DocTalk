@@ -45,3 +45,7 @@ def initialize_pinecone_index(index_name="doctalk"):
 def store_embeddings(chunks, vectorstore):
    try:
       vectorstore.add_documents(chunks)
+      return "Embeddings stored successfully"
+   except Exception as e:
+      logger.error(f"Error storing embeddings: {e}")
+      return "Error storing embeddings"

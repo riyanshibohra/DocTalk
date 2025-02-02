@@ -2,6 +2,8 @@ import requests
 import logging
 from dotenv import load_dotenv
 import os
+import pygame
+from time import sleep
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -13,6 +15,9 @@ class ElevenLabsTTS:
             raise ValueError("ElevenLabs API key is required. Please set ELEVEN_LABS_API_KEY in your .env file")
         self.api_key = api_key
         self.base_url = "https://api.elevenlabs.io/v1"
+        
+        # Initialize pygame mixer for audio playback
+        pygame.mixer.init()
         
         # Validate API key on initialization
         self.validate_api_key()
@@ -66,10 +71,18 @@ class ElevenLabsTTS:
                 audio_file.write(response.content)
             logger.info("Speech synthesized successfully and saved to output.mp3")
             
-            # Play the audio (optional)
+            # Play the audio using pygame
             try:
-                from playsound import playsound
-                playsound("output.mp3")
+                pygame.mixer.music.load("output.mp3")
+                pygame.mixer.music.play()
+                
+                # Wait for the audio to finish playing
+                while pygame.mixer.music.get_busy():
+                    sleep(0.1)
+                    
+                # Clean up
+                pygame.mixer.music.unload()
+                
             except Exception as e:
                 logger.error(f"Error playing audio: {e}")
                 
@@ -80,3 +93,12 @@ class ElevenLabsTTS:
                 logger.error(f"Error synthesizing speech: {e}")
         except Exception as e:
             logger.error(f"Error synthesizing speech: {e}")
+
+    def __del__(self):
+        """
+        Clean up pygame mixer when the object is destroyed
+        """
+        try:
+            pygame.mixer.quit()
+        except:
+            pass

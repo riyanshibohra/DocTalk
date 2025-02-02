@@ -65,4 +65,4 @@ zstandard==0.23.0
 openai-whisper
 sounddevice
 scipy
-playsound
+pygame
