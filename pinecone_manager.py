@@ -1,5 +1,6 @@
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import Pinecone
+#from langchain.vectorstores import Pinecone
+from langchain_community.vectorstores import Pinecone
 from pinecone import Pinecone, ServerlessSpec
 from langchain_pinecone import PineconeVectorStore
 
