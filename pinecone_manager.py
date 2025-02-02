@@ -49,19 +49,3 @@ def store_embeddings(chunks, vectorstore):
    except Exception as e:
       logger.error(f"Error storing embeddings: {e}")
       return "Error storing embeddings"
-   
-
-
-def main():
-    # Initialize Pinecone index
-    vectorstore = initialize_pinecone_index()
-
-    # Example usage
-    chunks = ["This is a test chunk", "Another test chunk"]
-
-    docs = [Document(page_content=chunk, metadata={"source": "test"}) for chunk in chunks]
-    result = store_embeddings(docs, vectorstore)
-    logger.info(result)
-
-if __name__ == "__main__":
-    main()
