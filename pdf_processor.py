@@ -18,42 +18,4 @@ def extract_text_from_pdf(pdf_path):
                 logger.error(f"Error creating PDF reader: {e}")
                 raise ValueError(f"Could not read PDF file: {e}")
 
-            # Extract text from all pages
-            text = ''
-            for page in reader.pages:
-                try:
-                    text += page.extract_text() + '\n'
-                except Exception as e:
-                    logger.error(f"Error extracting text from page: {e}")
-                    continue
-
-            if not text.strip():
-                logger.warning("No text was extracted from the PDF")
-                
-            return text
-            
-    except FileNotFoundError:
-        logger.error(f"PDF file not found: {pdf_path}")
-        raise
-    except Exception as e:
-        logger.error(f"Error processing PDF: {e}")
-        raise
-
-# Function to chunk text
-def chunk_text(text, chunk_size=1000, chunk_overlap=200):
-    """
-    Split text into chunks using RecursiveCharacterTextSplitter
-    """
-    if not text:
-        logger.warning("Empty text provided for chunking")
-        return []
-        
-    try:
-        splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap
-        )
-        return splitter.split_text(text)
-    except Exception as e:
-        logger.error(f"Error chunking text: {e}")
-        raise 
+           
