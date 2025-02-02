@@ -6,6 +6,7 @@ from text_to_speech import ElevenLabsTTS
 from langchain_core.documents import Document
 import logging
 import os
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -14,7 +15,26 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     # Process PDF and store embeddings
     pdf_path = 'sample.pdf'  # Replace with your PDF file path
-    extracted_text = extract_text_from_pdf(pdf_path)
+    
+    # Check if file exists
+    if not Path(pdf_path).is_file():
+        logger.error(f"PDF file not found: {pdf_path}")
+        print(f"Error: Could not find the PDF file at {pdf_path}")
+        exit(1)
+        
+    # Check if file is empty
+    if os.path.getsize(pdf_path) == 0:
+        logger.error(f"PDF file is empty: {pdf_path}")
+        print(f"Error: The PDF file at {pdf_path} is empty")
+        exit(1)
+        
+    try:
+        extracted_text = extract_text_from_pdf(pdf_path)
+    except Exception as e:
+        logger.error(f"Error extracting text from PDF: {e}")
+        print(f"Error: Could not read the PDF file. Please ensure it is a valid PDF file.")
+        exit(1)
+
     chunks = chunk_text(extracted_text)
 
     # Initialize Pinecone index
