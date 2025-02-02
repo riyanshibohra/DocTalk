@@ -1,13 +1,14 @@
-from pdf_processor import extract_text_from_pdf, chunk_text
-from pinecone_manager import initialize_pinecone_index, store_embeddings
-from query_manager import setup_retrieval_chain, get_answer
-from speech_to_text import WhisperTranscriber
-from text_to_speech import ElevenLabsTTS
+from core.pdf_processor import extract_text_from_pdf, chunk_text
+from core.pinecone_manager import initialize_pinecone_index
+from core.query_manager import setup_retrieval_chain
+from core.speech_to_text import WhisperTranscriber
+from core.text_to_speech import ElevenLabsTTS
 from langchain_core.documents import Document
 import logging
 import os
 from pathlib import Path
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,6 @@ if __name__ == "__main__":
         # Initialize Pinecone and store embeddings
         vectorstore = initialize_pinecone_index()
         docs = [Document(page_content=chunk, metadata={"source": pdf_path}) for chunk in chunks]
-        store_embeddings(docs, vectorstore)
         
         # Initialize QA chain
         qa_chain = setup_retrieval_chain(vectorstore)
@@ -38,6 +38,13 @@ if __name__ == "__main__":
         # Initialize speech components
         transcriber = WhisperTranscriber(model_name="base")
         eleven_labs_api_key = os.getenv("ELEVEN_LABS_API_KEY")
+        
+    except Exception as e:
+        logger.error(f"Error in initialization: {e}")
+        exit(1)
+
+    try:
+        # Initialize speech components
         tts = ElevenLabsTTS(api_key=eleven_labs_api_key) if eleven_labs_api_key else None
 
         # Interactive QA loop
