@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 
 # Initialize the language model
 llm = ChatOpenAI(
-    model_name="gpt-3.5-turbo",
-    temperature=0.7
+    model="gpt-4o-mini",
+    temperature=0
 )
 
 # Custom prompt template for better context handling
