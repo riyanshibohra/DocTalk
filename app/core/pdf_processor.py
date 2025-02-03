@@ -42,18 +42,17 @@ def extract_text_from_pdf(pdf_path):
 # Function to chunk text
 def chunk_text(text, chunk_size=1000, chunk_overlap=200):
     """
-    Split text into chunks using RecursiveCharacterTextSplitter
+    Split text into overlapping chunks of specified size
     """
-    if not text:
-        logger.warning("Empty text provided for chunking")
-        return []
-        
     try:
-        splitter = RecursiveCharacterTextSplitter(
+        text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap
+            chunk_overlap=chunk_overlap,
+            length_function=len,
         )
-        return splitter.split_text(text)
+        chunks = text_splitter.split_text(text)
+        logger.info(f"Text successfully split into {len(chunks)} chunks")
+        return chunks
     except Exception as e:
         logger.error(f"Error chunking text: {e}")
         raise 

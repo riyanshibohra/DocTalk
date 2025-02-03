@@ -1,10 +1,10 @@
 from .core.pdf_processor import extract_text_from_pdf, chunk_text
-from .core.pinecone_manager import initialize_pinecone_index
+from .core.pinecone_manager import PineconeManager
 from .core.query_manager import setup_retrieval_chain
 from .core.speech_to_text import WhisperTranscriber
 from .core.text_to_speech import ElevenLabsTTS
 from langchain_core.documents import Document
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import logging
@@ -29,7 +29,8 @@ app.add_middleware(
 
 # Initialize components
 try:
-    vectorstore = initialize_pinecone_index()
+    pinecone_manager = PineconeManager()
+    vectorstore = pinecone_manager.vectorstore
     qa_chain = setup_retrieval_chain(vectorstore)
     transcriber = WhisperTranscriber(model_name="base")
     tts = ElevenLabsTTS(api_key=os.getenv("ELEVEN_LABS_API_KEY"))
@@ -51,12 +52,34 @@ async def process_pdf(file: UploadFile = File(...)):
         
         # Process PDF
         extracted_text = extract_text_from_pdf("temp.pdf")
-        chunks = chunk_text(extracted_text)
+        logger.info(f"Extracted text length: {len(extracted_text)}")
         
+        chunks = chunk_text(extracted_text)
+        logger.info(f"Created {len(chunks)} chunks")
+
+        # Store chunks in Pinecone
+        documents = []
+        for i, chunk in enumerate(chunks):
+            doc = Document(
+                page_content=chunk,
+                metadata={"source": file.filename, "chunk_id": i}
+            )
+            documents.append(doc)
+            logger.info(f"Processing chunk {i+1}/{len(chunks)}")
+        
+        # Batch add documents to vectorstore
+        ids = vectorstore.add_documents(documents)
+        logger.info(f"Successfully stored {len(ids)} documents in Pinecone")
+
         # Clean up
         os.remove("temp.pdf")
         
-        return {"message": "PDF processed successfully", "chunks": len(chunks)}
+        return {
+            "message": "PDF processed successfully",
+            "chunks": len(chunks),
+            "stored_documents": len(ids),
+            "document_ids": ids  # Return IDs for future reference
+        }
     except Exception as e:
         logger.error(f"Error processing PDF: {e}")
         return {"error": str(e)}
@@ -109,4 +132,45 @@ async def root():
             "Text to Speech": "/api/synthesize"
         },
         "documentation": "/docs"
-    } 
+    }
+
+@app.get("/api/test-vectorstore")
+async def test_vectorstore():
+    try:
+        # Perform a simple similarity search with a test query
+        test_query = "test"
+        results = vectorstore.similarity_search(test_query, k=1)
+        return {
+            "status": "success",
+            "document_found": len(results) > 0,
+            "sample_content": results[0].page_content if results else None
+        }
+    except Exception as e:
+        logger.error(f"Error testing vectorstore: {e}")
+        return {"error": str(e)}
+
+@app.delete("/api/delete-all-documents")
+async def delete_all_documents():
+    """Delete all documents from the vector store"""
+    try:
+        success = pinecone_manager.delete_all_vectors()
+        return {
+            "message": "Successfully deleted all documents from the vector store",
+            "status": "success"
+        }
+    except Exception as e:
+        logger.error(f"Error deleting documents: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/delete-documents/{document_id}")
+async def delete_documents(document_id: str):
+    """Delete specific document by ID"""
+    try:
+        success = pinecone_manager.delete_vectors_by_ids([document_id])
+        return {
+            "message": f"Successfully deleted document {document_id}",
+            "status": "success"
+        }
+    except Exception as e:
+        logger.error(f"Error deleting document: {e}")
+        raise HTTPException(status_code=500, detail=str(e)) 
