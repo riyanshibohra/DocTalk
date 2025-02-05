@@ -41,20 +41,16 @@ def setup_retrieval_chain(vectorstore):
             template=CUSTOM_PROMPT
         )
 
-        # Create retrieval chain with increased context
+        # Create retrieval chain with simpler search parameters
         qa_chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
             retriever=vectorstore.as_retriever(
-                search_type="similarity",
-                search_kwargs={
-                    "k": 10,  # Increased number of chunks for better context
-                    "fetch_k": 15  # Fetch more documents initially for better selection
-                }
+                search_kwargs={"k": 5}  # Just use k parameter
             ),
             return_source_documents=True,
             combine_docs_chain_kwargs={
                 "prompt": prompt,
-                "document_separator": "\n\n",  # Better document separation for context
+                "document_separator": "\n\n"
             }
         )
         

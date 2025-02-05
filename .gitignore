@@ -65,3 +65,7 @@ yarn-error.log*
 
 # Test coverage
 /coverage
+
+
+temp.pdf
+temp_audio.wav

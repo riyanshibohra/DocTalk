@@ -62,56 +62,96 @@ async def process_pdf(file: UploadFile = File(...)):
         for i, chunk in enumerate(chunks):
             doc = Document(
                 page_content=chunk,
-                metadata={"source": file.filename, "chunk_id": i}
+                metadata={
+                    "source": file.filename,
+                    "chunk_id": i,
+                    "text": chunk
+                }
             )
             documents.append(doc)
-            logger.info(f"Processing chunk {i+1}/{len(chunks)}")
         
-        # Batch add documents to vectorstore
-        ids = vectorstore.add_documents(documents)
-        logger.info(f"Successfully stored {len(ids)} documents in Pinecone")
-
-        # Clean up
-        os.remove("temp.pdf")
-        
-        return {
-            "message": "PDF processed successfully",
-            "chunks": len(chunks),
-            "stored_documents": len(ids),
-            "document_ids": ids  # Return IDs for future reference
-        }
+        try:
+            # Try to delete existing vectors (don't raise if it fails)
+            pinecone_manager.delete_all_vectors()
+            
+            # Add new documents
+            ids = vectorstore.add_documents(documents)
+            logger.info(f"Successfully stored {len(ids)} documents in Pinecone")
+            
+            # Clean up
+            os.remove("temp.pdf")
+            
+            return {
+                "message": "PDF processed successfully",
+                "chunks": len(chunks),
+                "stored_documents": len(ids)
+            }
+        except Exception as e:
+            logger.error(f"Error storing documents: {e}")
+            raise
+            
     except Exception as e:
         logger.error(f"Error processing PDF: {e}")
+        if os.path.exists("temp.pdf"):
+            os.remove("temp.pdf")
         return {"error": str(e)}
 
 @app.post("/api/ask")
 async def ask_question(question: Question):
     logger.info(f"Query sent to AI: {question.text}")
     try:
-        # Get relevant documents from vectorstore
+        # First verify documents exist in vectorstore
+        index = pinecone_manager.pc.Index(pinecone_manager.index_name)
+        stats = index.describe_index_stats()
+        logger.info(f"Index stats: {stats}")
+        
+        # Get relevant documents
         relevant_docs = vectorstore.similarity_search(
             question.text,
-            k=5  # Adjust this number based on your needs
+            k=5
         )
         
         logger.info(f"Retrieved {len(relevant_docs)} relevant documents")
         
         if len(relevant_docs) == 0:
-            return {"answer": "I'm sorry, I couldn't find any relevant information in the document to answer your question. Please try rephrasing your question or check if the document contains the information you're looking for."}
+            # Try direct query with embeddings
+            query_embedding = pinecone_manager.embeddings.embed_query(question.text)
+            query_response = index.query(
+                vector=query_embedding,
+                top_k=5,
+                namespace="",
+                include_metadata=True
+            )
             
-        for doc in relevant_docs:
-            logger.info(f"Source: {doc.metadata.get('source')}, Content preview: {doc.page_content[:100]}...")
-
-        # Use invoke instead of calling directly (to fix deprecation warning)
+            if query_response.matches:
+                relevant_docs = [
+                    Document(
+                        page_content=match.metadata.get('text', ''),
+                        metadata=match.metadata
+                    )
+                    for match in query_response.matches
+                ]
+                logger.info(f"Retrieved {len(relevant_docs)} documents through direct query")
+        
+        if len(relevant_docs) == 0:
+            return {"answer": "I'm sorry, I couldn't find any relevant information in the document. Please try rephrasing your question."}
+            
+        # Log retrieved documents for debugging
+        for i, doc in enumerate(relevant_docs):
+            logger.info(f"Document {i+1} content: {doc.page_content[:200]}")
+        
+        # Use the chain to get the answer
         response = qa_chain.invoke({
             "question": question.text,
             "chat_history": [],
-            "context": "\n".join(doc.page_content for doc in relevant_docs)
+            "context": "\n\n".join(doc.page_content for doc in relevant_docs)
         })
         
         return {"answer": response["answer"]}
+        
     except Exception as e:
         logger.error(f"Error processing question: {e}")
+        logger.exception("Full traceback:")
         return {"error": str(e)}
 
 @app.post("/api/transcribe")
