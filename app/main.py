@@ -10,7 +10,7 @@ from pydantic import BaseModel
 import logging
 import os
 from pathlib import Path
-
+import uvicorn
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -86,6 +86,7 @@ async def process_pdf(file: UploadFile = File(...)):
 
 @app.post("/api/ask")
 async def ask_question(question: Question):
+    logger.info(f"Query sent to AI: {question.text}")
     try:
         response = qa_chain({"question": question.text, "chat_history": []})
         return {"answer": response["answer"]}
@@ -174,3 +175,7 @@ async def delete_documents(document_id: str):
     except Exception as e:
         logger.error(f"Error deleting document: {e}")
         raise HTTPException(status_code=500, detail=str(e)) 
+    
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
