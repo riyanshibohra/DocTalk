@@ -88,7 +88,27 @@ async def process_pdf(file: UploadFile = File(...)):
 async def ask_question(question: Question):
     logger.info(f"Query sent to AI: {question.text}")
     try:
-        response = qa_chain({"question": question.text, "chat_history": []})
+        # Get relevant documents from vectorstore
+        relevant_docs = vectorstore.similarity_search(
+            question.text,
+            k=5  # Adjust this number based on your needs
+        )
+        
+        logger.info(f"Retrieved {len(relevant_docs)} relevant documents")
+        
+        if len(relevant_docs) == 0:
+            return {"answer": "I'm sorry, I couldn't find any relevant information in the document to answer your question. Please try rephrasing your question or check if the document contains the information you're looking for."}
+            
+        for doc in relevant_docs:
+            logger.info(f"Source: {doc.metadata.get('source')}, Content preview: {doc.page_content[:100]}...")
+
+        # Use invoke instead of calling directly (to fix deprecation warning)
+        response = qa_chain.invoke({
+            "question": question.text,
+            "chat_history": [],
+            "context": "\n".join(doc.page_content for doc in relevant_docs)
+        })
+        
         return {"answer": response["answer"]}
     except Exception as e:
         logger.error(f"Error processing question: {e}")

@@ -28,16 +28,33 @@ def setup_retrieval_chain(vectorstore):
     Set up a retrieval chain for question answering using the provided vector store
     """
     try:
-        # Create prompt template
+        # Create prompt template with more explicit instructions
+        CUSTOM_PROMPT = """You are a helpful AI assistant that answers questions based on the provided context from PDF documents.
+        
+        Context: {context}
+        
+        Question: {question}
+        
+        Instructions:
+        1. Use ONLY the information from the context above to answer the question
+        2. If you can't find relevant information in the context, say so
+        3. Be specific and cite information directly from the context
+        4. If asked for key points or takeaways, structure your response in bullet points
+        
+        Answer: """
+        
         prompt = PromptTemplate(
             input_variables=["context", "question"],
             template=CUSTOM_PROMPT
         )
 
-        # Create retrieval chain
+        # Create retrieval chain with modified parameters
         qa_chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
-            retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
+            retriever=vectorstore.as_retriever(
+                search_type="similarity",
+                search_kwargs={"k": 5}
+            ),
             return_source_documents=True,
             combine_docs_chain_kwargs={"prompt": prompt}
         )
