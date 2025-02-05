@@ -12,14 +12,22 @@ llm = ChatOpenAI(
     temperature=0
 )
 
-# Custom prompt template for better context handling
-CUSTOM_PROMPT = """You are a helpful AI assistant that answers questions based on the provided context from documents.
-Use the following pieces of context to answer the question at the end. 
-If you don't know the answer, just say that you don't know, don't try to make up an answer.
+# Custom prompt template for better context handling and inference
+CUSTOM_PROMPT = """You are a helpful AI assistant that analyzes and explains documents. You have access to portions of a PDF document through the context provided below.
 
 Context: {context}
 
 Question: {question}
+
+Instructions:
+1. Use the provided context to understand the document's content
+2. When asked about key points, takeaways, or summaries:
+   - Analyze the available information
+   - Synthesize the main ideas and concepts
+   - Present them in a clear, structured format (preferably bullet points)
+3. Draw reasonable conclusions from the context even if not explicitly stated
+4. If the context is insufficient, explain what aspects you can understand and what's missing
+5. Always maintain accuracy while providing comprehensive answers
 
 Answer: """
 
@@ -28,35 +36,26 @@ def setup_retrieval_chain(vectorstore):
     Set up a retrieval chain for question answering using the provided vector store
     """
     try:
-        # Create prompt template with more explicit instructions
-        CUSTOM_PROMPT = """You are a helpful AI assistant that answers questions based on the provided context from PDF documents.
-        
-        Context: {context}
-        
-        Question: {question}
-        
-        Instructions:
-        1. Use ONLY the information from the context above to answer the question
-        2. If you can't find relevant information in the context, say so
-        3. Be specific and cite information directly from the context
-        4. If asked for key points or takeaways, structure your response in bullet points
-        
-        Answer: """
-        
         prompt = PromptTemplate(
             input_variables=["context", "question"],
             template=CUSTOM_PROMPT
         )
 
-        # Create retrieval chain with modified parameters
+        # Create retrieval chain with increased context
         qa_chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
             retriever=vectorstore.as_retriever(
                 search_type="similarity",
-                search_kwargs={"k": 5}
+                search_kwargs={
+                    "k": 10,  # Increased number of chunks for better context
+                    "fetch_k": 15  # Fetch more documents initially for better selection
+                }
             ),
             return_source_documents=True,
-            combine_docs_chain_kwargs={"prompt": prompt}
+            combine_docs_chain_kwargs={
+                "prompt": prompt,
+                "document_separator": "\n\n",  # Better document separation for context
+            }
         )
         
         logger.info("Retrieval chain setup successfully")
