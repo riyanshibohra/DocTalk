@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize the language model
 llm = ChatOpenAI(
-    model="gpt-4o-mini",
+    model="gpt-4",
     temperature=0
 )
 

@@ -74,6 +74,7 @@ vectorstore = pinecone_manager.vectorstore
 def store_embeddings(chunks, vectorstore):
    try:
       vectorstore.add_documents(chunks)
+      logger.info(f"Stored {len(chunks)} embeddings in Pinecone")  # Log the number of stored embeddings
       return "Embeddings stored successfully"
    except Exception as e:
       logger.error(f"Error storing embeddings: {e}")

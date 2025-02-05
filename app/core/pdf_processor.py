@@ -30,6 +30,7 @@ def extract_text_from_pdf(pdf_path):
             if not text.strip():
                 logger.warning("No text was extracted from the PDF")
                 
+            logger.info(f"Extracted text: {text[:100]}...")  # Log the first 100 characters
             return text
             
     except FileNotFoundError:
@@ -52,6 +53,7 @@ def chunk_text(text, chunk_size=1000, chunk_overlap=200):
         )
         chunks = text_splitter.split_text(text)
         logger.info(f"Text successfully split into {len(chunks)} chunks")
+        logger.info(f"Number of chunks created: {len(chunks)}")  # Log the number of chunks
         return chunks
     except Exception as e:
         logger.error(f"Error chunking text: {e}")
