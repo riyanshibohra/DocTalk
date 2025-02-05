@@ -45,6 +45,9 @@ export default function Home() {
         setUploadedPdf(null)
         setShowUploadSection(true)
         setMessage({ type: 'success', text: 'PDF deleted successfully!' })
+        // Clear chat history when PDF is deleted
+        setMessages([])
+        setInputMessage('')
       } else {
         throw new Error('Failed to delete PDF')
       }
