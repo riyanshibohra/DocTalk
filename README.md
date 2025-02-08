@@ -69,7 +69,8 @@ npm run dev
 ## 🔑 Environment Variables
 
 Create a `.env` file in the root directory with the following variables:
-```OPENAI_API_KEY=your_openai_api_key
+```
+OPENAI_API_KEY=your_openai_api_key
 PINECONE_API_KEY=your_pinecone_api_key
 ELEVEN_LABS_API_KEY=your_eleven_labs_api_key
 ```
