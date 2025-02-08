@@ -16,7 +16,24 @@ An intelligent document interaction system that allows users to chat with their 
 
 ## 📁 Project Structure
 
-🚧 Project in Progress 🚧
+# Start of Selection
+DocTalk/
+├── frontend/               # Next.js frontend application
+│   ├── pages/             # Next.js pages
+│   ├── components/        # React components
+│   ├── styles/            # CSS styles
+│   └── public/            # Static assets
+│
+├── backend/                # FastAPI backend application
+│   ├── app/               # Main application directory
+│   │   ├── main.py        # FastAPI application entry
+│   │   ├── __init__.py    # FastAPI application initialization
+│   │   ├── core/          # Core functionalities
+│   │   ├── styles.css      # CSS styles for the backend
+├── .env                    # Environment variables
+├── requirements.txt        # Python dependencies
+└── package.json            # Node.js dependencies
+# End of Selection
 
 ## 🚀 Features
 
