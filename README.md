@@ -14,27 +14,6 @@ An intelligent document interaction system that allows users to chat with their 
   <img src="https://img.shields.io/badge/Eleven_Labs-FF0000?style=for-the-badge&logo=elevenlabs&logoColor=white" alt="Eleven Labs" />
 </div>
 
-## 📁 Project Structure
-
-# Start of Selection
-DocTalk/
-├── frontend/               # Next.js frontend application
-│   ├── pages/             # Next.js pages
-│   ├── components/        # React components
-│   ├── styles/            # CSS styles
-│   └── public/            # Static assets
-│
-├── backend/                # FastAPI backend application
-│   ├── app/               # Main application directory
-│   │   ├── main.py        # FastAPI application entry
-│   │   ├── __init__.py    # FastAPI application initialization
-│   │   ├── core/          # Core functionalities
-│   │   ├── styles.css      # CSS styles for the backend
-├── .env                    # Environment variables
-├── requirements.txt        # Python dependencies
-└── package.json            # Node.js dependencies
-# End of Selection
-
 ## 🚀 Features
 
 - 📄 Document upload and processing
@@ -90,8 +69,7 @@ npm run dev
 ## 🔑 Environment Variables
 
 Create a `.env` file in the root directory with the following variables:
-```
-OPENAI_API_KEY=your_openai_api_key
+```OPENAI_API_KEY=your_openai_api_key
 PINECONE_API_KEY=your_pinecone_api_key
 ELEVEN_LABS_API_KEY=your_eleven_labs_api_key
 ```
@@ -99,3 +77,4 @@ ELEVEN_LABS_API_KEY=your_eleven_labs_api_key
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
