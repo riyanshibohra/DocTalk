@@ -11,6 +11,7 @@ An intelligent document interaction system that allows users to chat with their 
   <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" />
   <img src="https://img.shields.io/badge/LangChain-339933?style=for-the-badge&logo=chainlink&logoColor=white" alt="LangChain" />
   <img src="https://img.shields.io/badge/Pinecone-000000?style=for-the-badge&logo=pinecone&logoColor=white" alt="Pinecone" />
+  <img src="https://img.shields.io/badge/Eleven_Labs-FF0000?style=for-the-badge&logo=elevenlabs&logoColor=white" alt="Eleven Labs" />
 </div>
 
 ## 📁 Project Structure
@@ -39,6 +40,7 @@ An intelligent document interaction system that allows users to chat with their 
 - **OpenAI**: Language model integration
 - **Pinecone**: Vector database for embeddings
 - **Whisper**: Speech-to-text capabilities
+- **Eleven Labs**: Text-to-speech capabilities
 
 ## 🏃‍♂️ Getting Started
 
@@ -74,7 +76,7 @@ Create a `.env` file in the root directory with the following variables:
 ```
 OPENAI_API_KEY=your_openai_api_key
 PINECONE_API_KEY=your_pinecone_api_key
-PINECONE_ENVIRONMENT=your_pinecone_environment
+ELEVEN_LABS_API_KEY=your_eleven_labs_api_key
 ```
 
 ## 📝 License
