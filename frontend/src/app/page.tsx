@@ -62,8 +62,10 @@ export default function Home() {
   const handleUpload = async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
+    setLoading(true);
 
     try {
+      console.log('Uploading file:', file.name);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/process-pdf`, {
         method: 'POST',
         body: formData,
@@ -74,58 +76,68 @@ export default function Home() {
       }
 
       const data = await response.json();
+      console.log('Upload response:', data);
+
       setMessage({ 
         type: 'success', 
         text: `PDF processed successfully! Created ${data.chunks} chunks and stored ${data.stored_documents} documents.` 
-      })
-      setUploadedPdf(file.name)
-      setShowUploadSection(false)
-      setFile(null)
-      // Reset file input
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
-      if (fileInput) fileInput.value = ''
+      });
+      setUploadedPdf(file.name);
+      setShowUploadSection(false);
+      setFile(null);
+      
+      // Verify data was stored by making a test request
+      const testResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/test-vectorstore`);
+      const testData = await testResponse.json();
+      console.log('Vectorstore test:', testData);
+      
     } catch (error) {
       console.error('Error:', error);
       setMessage({ 
         type: 'error', 
         text: error instanceof Error ? error.message : 'An error occurred while processing the PDF' 
-      })
+      });
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return
+    if (!inputMessage.trim()) return;
 
-    const userMessage = inputMessage.trim()
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }])
-    setInputMessage('')
-    setIsAsking(true)
+    const userMessage = inputMessage.trim();
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setInputMessage('');
+    setIsAsking(true);
 
     try {
+      console.log('Sending question:', userMessage);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ text: userMessage }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
+      console.log('Question response:', data);
 
       if (response.ok) {
-        setMessages(prev => [...prev, { role: 'ai', content: data.answer }])
+        setMessages(prev => [...prev, { role: 'ai', content: data.answer }]);
       } else {
-        throw new Error(data.error || 'Failed to get response')
+        throw new Error(data.error || 'Failed to get response');
       }
     } catch (error) {
+      console.error('Error asking question:', error);
       setMessages(prev => [...prev, { 
         role: 'ai', 
-        content: 'Sorry, I encountered an error processing your question.' 
-      }])
+        content: error instanceof Error ? error.message : 'Sorry, I encountered an error processing your question.' 
+      }]);
     } finally {
-      setIsAsking(false)
+      setIsAsking(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
