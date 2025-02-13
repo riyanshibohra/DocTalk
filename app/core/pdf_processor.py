@@ -13,10 +13,16 @@ def extract_text_from_pdf(pdf_path):
         logger.info(f"Opening PDF file: {pdf_path}")
         reader = PdfReader(pdf_path)
         text = ""
-        for page in reader.pages:
-            text += page.extract_text() + "\n"
+        for i, page in enumerate(reader.pages):
+            page_text = page.extract_text()
+            text += page_text + "\n"
+            logger.info(f"Page {i+1}: extracted {len(page_text)} characters")
         
         logger.info(f"Extracted {len(text)} characters from PDF")
+        if len(text) < 100:  # Log full text if it's very short
+            logger.info(f"Extracted text: {text}")
+        else:
+            logger.info(f"Text sample: {text[:100]}...")
         return text
     except Exception as e:
         logger.error(f"Error extracting text from PDF: {e}")
@@ -32,6 +38,14 @@ def chunk_text(text, chunk_size=1000, chunk_overlap=200):
             logger.error("No text provided for chunking")
             return []
             
+        # Adjust chunk size for small documents
+        text_length = len(text)
+        if text_length < chunk_size:
+            chunk_size = max(100, text_length // 2)  # Use smaller chunks for small documents
+            chunk_overlap = chunk_size // 4  # Adjust overlap accordingly
+            
+        logger.info(f"Using chunk_size: {chunk_size}, overlap: {chunk_overlap}")
+            
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
@@ -39,6 +53,11 @@ def chunk_text(text, chunk_size=1000, chunk_overlap=200):
         )
         chunks = text_splitter.split_text(text)
         logger.info(f"Text split into {len(chunks)} chunks")
+        
+        # Log first chunk for debugging
+        if chunks:
+            logger.info(f"First chunk sample: {chunks[0][:100]}...")
+            
         return chunks
     except Exception as e:
         logger.error(f"Error chunking text: {e}")
