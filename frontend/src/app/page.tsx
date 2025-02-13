@@ -141,9 +141,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-      {/* Header - Positioned at top after upload */}
-      <div className={`text-center transition-all duration-300 ease-in-out ${!showUploadSection ? 'py-4' : 'py-16'}`}>
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+      {/* Header - Make it more compact when PDF is uploaded */}
+      <div className={`text-center transition-all duration-300 ease-in-out ${
+        !showUploadSection ? 'py-2' : 'py-16'  // Reduced from py-4 to py-2 when PDF is uploaded
+      }`}>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2"> {/* Reduced margin-bottom */}
           DocTalk
         </h1>
         {showUploadSection && (
@@ -238,11 +240,11 @@ export default function Home() {
           )
         )}
 
-        {/* Chat Interface - Only show when PDF is uploaded */}
+        {/* Chat Interface - Adjust positioning */}
         {!showUploadSection && (
           <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg">
-            {/* Chat Messages */}
-            <div className="max-w-4xl mx-auto h-96 overflow-y-auto p-4 space-y-4">
+            {/* Increase chat window height and adjust top margin */}
+            <div className="max-w-4xl mx-auto h-[calc(100vh-120px)] overflow-y-auto p-4 space-y-4"> {/* Increased height */}
               {messages.map((message, index) => (
                 <div
                   key={index}
@@ -267,7 +269,7 @@ export default function Home() {
               )}
             </div>
 
-            {/* Chat Input */}
+            {/* Chat Input - Keep at bottom */}
             <div className="border-t border-gray-200 dark:border-gray-700 p-4">
               <div className="max-w-4xl mx-auto flex space-x-4">
                 <input
