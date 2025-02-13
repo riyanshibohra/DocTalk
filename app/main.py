@@ -158,12 +158,26 @@ async def ask_question(question: Question):
             "context": "\n\n".join(doc.page_content for doc in relevant_docs)
         })
         
-        return {"answer": response["answer"]}
+        # Format the response
+        formatted_answer = format_response(response["answer"])
+        return {"answer": formatted_answer}
         
     except Exception as e:
         logger.error(f"Error processing question: {e}")
         logger.exception("Full traceback:")
         return {"error": str(e)}
+
+def format_response(answer: str) -> str:
+    # Split the answer into sections
+    sections = answer.split("\n")
+    formatted = "<h3>Summary of the Document:</h3><ul>"
+    
+    for section in sections:
+        if section.strip():  # Avoid empty lines
+            formatted += f"<li>{section.strip()}</li>"
+    
+    formatted += "</ul>"
+    return formatted
 
 @app.post("/api/transcribe")
 async def transcribe_audio(file: UploadFile = File(...)):
