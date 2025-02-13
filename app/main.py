@@ -109,29 +109,29 @@ async def process_pdf(file: UploadFile = File(...)):
 
 @app.post("/api/ask")
 async def ask_question(question: Question):
-    logger.info(f"Query sent to AI: {question.text}")
+    logger.info(f"Query received: {question.text}")
     try:
         # First verify documents exist in vectorstore
         index = pinecone_manager.pc.Index(pinecone_manager.index_name)
         stats = index.describe_index_stats()
         logger.info(f"Index stats: {stats}")
         
-        # Get relevant documents
+        # Get relevant documents with higher k value
         relevant_docs = vectorstore.similarity_search(
             question.text,
-            k=5
+            k=8  # Increased from 5
         )
         
         logger.info(f"Retrieved {len(relevant_docs)} relevant documents")
         
         if len(relevant_docs) == 0:
-            # Try direct query with embeddings
+            # Fallback search with different parameters
             query_embedding = pinecone_manager.embeddings.embed_query(question.text)
             query_response = index.query(
                 vector=query_embedding,
-                top_k=5,
-                namespace="",
-                include_metadata=True
+                top_k=8,
+                include_metadata=True,
+                score_threshold=0.5  # Add threshold here instead
             )
             
             if query_response.matches:
@@ -142,25 +142,24 @@ async def ask_question(question: Question):
                     )
                     for match in query_response.matches
                 ]
-                logger.info(f"Retrieved {len(relevant_docs)} documents through direct query")
+                logger.info(f"Retrieved {len(relevant_docs)} documents through fallback query")
         
         if len(relevant_docs) == 0:
             return {"answer": "I'm sorry, I couldn't find any relevant information in the document. Please try rephrasing your question."}
-            
-        # Log retrieved documents for debugging
-        for i, doc in enumerate(relevant_docs):
-            logger.info(f"Document {i+1} content: {doc.page_content[:200]}")
         
-        # Use the chain to get the answer
+        # Log retrieved content for debugging
+        for i, doc in enumerate(relevant_docs):
+            logger.info(f"Document {i+1} content preview: {doc.page_content[:200]}...")
+        
+        # Use the chain to get the answer with chat history
         response = qa_chain.invoke({
             "question": question.text,
             "chat_history": [],
             "context": "\n\n".join(doc.page_content for doc in relevant_docs)
         })
         
-        # Format the response
-        formatted_answer = format_response(response["answer"])
-        return {"answer": formatted_answer}
+        logger.info(f"Generated response: {response['answer'][:200]}...")
+        return {"answer": response["answer"]}
         
     except Exception as e:
         logger.error(f"Error processing question: {e}")
