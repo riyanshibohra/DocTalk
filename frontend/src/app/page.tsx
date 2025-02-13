@@ -59,47 +59,37 @@ export default function Home() {
     }
   }
 
-  const handleUpload = async () => {
-    if (!file) {
-      setMessage({ type: 'error', text: 'Please select a PDF file first' })
-      return
-    }
-
-    setLoading(true)
-    setMessage(null)
-
-    const formData = new FormData()
-    formData.append('file', file)
+  const handleUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/process-pdf`, {
         method: 'POST',
         body: formData,
-      })
+      });
 
-      const data = await response.json()
-
-      if (response.ok) {
-        setMessage({ 
-          type: 'success', 
-          text: `PDF processed successfully! Created ${data.chunks} chunks and stored ${data.stored_documents} documents.` 
-        })
-        setUploadedPdf(file.name)
-        setShowUploadSection(false)
-        setFile(null)
-        // Reset file input
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
-        if (fileInput) fileInput.value = ''
-      } else {
-        throw new Error(data.error || 'Failed to process PDF')
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const data = await response.json();
+      setMessage({ 
+        type: 'success', 
+        text: `PDF processed successfully! Created ${data.chunks} chunks and stored ${data.stored_documents} documents.` 
+      })
+      setUploadedPdf(file.name)
+      setShowUploadSection(false)
+      setFile(null)
+      // Reset file input
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+      if (fileInput) fileInput.value = ''
     } catch (error) {
+      console.error('Error:', error);
       setMessage({ 
         type: 'error', 
         text: error instanceof Error ? error.message : 'An error occurred while processing the PDF' 
       })
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -191,7 +181,7 @@ export default function Home() {
               {/* Upload Button */}
               <div className="flex justify-center">
                 <button
-                  onClick={handleUpload}
+                  onClick={() => file && handleUpload(file)}
                   disabled={!file || loading}
                   className={`
                     px-6 py-3 rounded-lg text-white font-medium
