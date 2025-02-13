@@ -254,9 +254,8 @@ export default function Home() {
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                     }`}
-                  >
-                    {message.content}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: message.content }}
+                  />
                 </div>
               ))}
               {isAsking && (
