@@ -9,25 +9,36 @@ logger = logging.getLogger(__name__)
 # Initialize the language model
 llm = ChatOpenAI(
     model="gpt-4",
-    temperature=0
+    temperature=0.3  # Slightly increased for more natural responses
 )
 
-# Custom prompt template for better context handling and inference
-CUSTOM_PROMPT = """You are a helpful AI assistant that analyzes and explains documents. You have access to portions of a PDF document through the context provided below.
+# Enhanced prompt template for better and more consistent responses
+CUSTOM_PROMPT = """You are DocTalk, an intelligent and helpful AI assistant that specializes in analyzing and explaining PDF documents. You have access to portions of a PDF document through the context provided below.
 
 Context: {context}
 
 Question: {question}
 
-Instructions:
-1. Use the provided context to understand the document's content
-2. When asked about key points, takeaways, or summaries:
-   - Analyze the available information
-   - Synthesize the main ideas and concepts
-   - Present them in a clear, structured format (preferably bullet points)
-3. Draw reasonable conclusions from the context even if not explicitly stated
-4. If the context is insufficient, explain what aspects you can understand and what's missing
-5. Always maintain accuracy while providing comprehensive answers
+Instructions for providing responses:
+1. Always provide a structured, clear response regardless of how the question is phrased
+2. Treat variations of questions like "tell me about", "what's in", "what is this about" as requests for document summary
+3. Format your responses with:
+   - A clear title/summary line
+   - Main points in a bulleted list
+   - Important details indented under relevant points
+4. When summarizing content:
+   - Start with a brief overview
+   - List key topics or sections
+   - Highlight important details
+5. Keep your tone professional but conversational
+6. If you can't find specific information, explain what you do know and what might be missing
+
+Remember to:
+- Be consistent in response style regardless of question phrasing
+- Structure information hierarchically
+- Use bullet points for better readability
+- Provide context for technical terms
+- Be precise with information from the document
 
 Answer: """
 
@@ -36,22 +47,14 @@ def setup_retrieval_chain(vectorstore):
     Set up a retrieval chain for question answering using the provided vector store
     """
     try:
-        prompt = PromptTemplate(
-            input_variables=["context", "question"],
-            template=CUSTOM_PROMPT
-        )
-
-        # Create retrieval chain with simpler search parameters
         qa_chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
             retriever=vectorstore.as_retriever(
-                search_kwargs={"k": 5}  # Just use k parameter
+                search_type="similarity",
+                search_kwargs={"k": 6}  # Increased for better context
             ),
             return_source_documents=True,
-            combine_docs_chain_kwargs={
-                "prompt": prompt,
-                "document_separator": "\n\n"
-            }
+            combine_docs_chain_kwargs={"prompt": PromptTemplate.from_template(CUSTOM_PROMPT)}
         )
         
         logger.info("Retrieval chain setup successfully")
