@@ -46,6 +46,7 @@ class Question(BaseModel):
 async def process_pdf(file: UploadFile = File(...)):
     try:
         # Save uploaded file temporarily
+        logger.info(f"Processing PDF file: {file.filename}")
         with open("temp.pdf", "wb") as temp_file:
             content = await file.read()
             temp_file.write(content)
@@ -54,8 +55,16 @@ async def process_pdf(file: UploadFile = File(...)):
         extracted_text = extract_text_from_pdf("temp.pdf")
         logger.info(f"Extracted text length: {len(extracted_text)}")
         
+        if not extracted_text:
+            logger.error("No text extracted from PDF")
+            return {"error": "Could not extract text from PDF"}
+            
         chunks = chunk_text(extracted_text)
         logger.info(f"Created {len(chunks)} chunks")
+        
+        if not chunks:
+            logger.error("No chunks created from text")
+            return {"error": "Could not create chunks from PDF text"}
 
         # Store chunks in Pinecone
         documents = []
@@ -71,8 +80,9 @@ async def process_pdf(file: UploadFile = File(...)):
             documents.append(doc)
         
         try:
-            # Try to delete existing vectors (don't raise if it fails)
+            # Try to delete existing vectors
             pinecone_manager.delete_all_vectors()
+            logger.info("Deleted existing vectors")
             
             # Add new documents
             ids = vectorstore.add_documents(documents)
@@ -84,7 +94,8 @@ async def process_pdf(file: UploadFile = File(...)):
             return {
                 "message": "PDF processed successfully",
                 "chunks": len(chunks),
-                "stored_documents": len(ids)
+                "stored_documents": len(ids),
+                "text_length": len(extracted_text)
             }
         except Exception as e:
             logger.error(f"Error storing documents: {e}")
