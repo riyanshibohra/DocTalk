@@ -140,12 +140,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-      {/* Header - Make it more compact when PDF is uploaded */}
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 flex flex-col">
+      {/* Header */}
       <div className={`text-center transition-all duration-300 ease-in-out ${
-        !showUploadSection ? 'py-2' : 'py-16'  // Reduced from py-4 to py-2 when PDF is uploaded
+        !showUploadSection ? 'py-2' : 'py-16'
       }`}>
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2"> {/* Reduced margin-bottom */}
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
           DocTalk
         </h1>
         {showUploadSection && (
@@ -155,158 +155,163 @@ export default function Home() {
         )}
       </div>
 
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Upload Section */}
-        {showUploadSection ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-            <div className="space-y-8">
-              {/* File Input */}
-              <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 transition-colors hover:border-gray-400 dark:hover:border-gray-500">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <label
-                  htmlFor="file-upload"
-                  className="cursor-pointer flex flex-col items-center"
-                >
-                  <svg
-                    className="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V7a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <span className="text-gray-600 dark:text-gray-400">
-                    {file ? file.name : 'Click to select a PDF file'}
-                  </span>
-                </label>
-              </div>
-
-              {/* Upload Button */}
-              <div className="flex justify-center">
-                <button
-                  onClick={() => file && handleUpload(file)}
-                  disabled={!file || loading}
-                  className={`
-                    px-6 py-3 rounded-lg text-white font-medium
-                    ${!file || loading
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700'}
-                    transition-colors duration-200
-                  `}
-                >
-                  {loading ? 'Processing...' : 'Upload PDF'}
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* Uploaded PDF Info - Top Right Corner */
-          uploadedPdf && (
-            <div className="fixed top-4 right-4">
-              <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg px-4 py-2">
-                <span className="text-sm text-gray-700 dark:text-gray-300">{uploadedPdf}</span>
-                <button
-                  onClick={handleDelete}
-                  className="ml-2 text-red-600 hover:text-red-700 transition-colors duration-200"
-                  title="Delete PDF"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          )
-        )}
-
-        {/* Chat Interface - Adjust positioning */}
-        {!showUploadSection && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg">
-            {/* Increase chat window height and adjust top margin */}
-            <div className="max-w-4xl mx-auto h-[calc(100vh-120px)] overflow-y-auto p-4 space-y-4"> {/* Increased height */}
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                      message.role === 'user'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                    }`}
-                    dangerouslySetInnerHTML={{ __html: message.content }}
+      {/* Main Content */}
+      <div className="flex-1 relative">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Upload Section */}
+          {showUploadSection ? (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+              <div className="space-y-8">
+                {/* File Input */}
+                <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 transition-colors hover:border-gray-400 dark:hover:border-gray-500">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="file-upload"
                   />
+                  <label
+                    htmlFor="file-upload"
+                    className="cursor-pointer flex flex-col items-center"
+                  >
+                    <svg
+                      className="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V7a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {file ? file.name : 'Click to select a PDF file'}
+                    </span>
+                  </label>
                 </div>
-              ))}
-              {isAsking && (
-                <div className="flex justify-start">
-                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg px-4 py-2 text-gray-900 dark:text-gray-100">
-                    <span className="animate-pulse">...</span>
+
+                {/* Upload Button */}
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => file && handleUpload(file)}
+                    disabled={!file || loading}
+                    className={`
+                      px-6 py-3 rounded-lg text-white font-medium
+                      ${!file || loading
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700'}
+                      transition-colors duration-200
+                    `}
+                  >
+                    {loading ? 'Processing...' : 'Upload PDF'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* PDF Info - Top Right Corner */
+            uploadedPdf && (
+              <div className="absolute top-4 right-4">
+                <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg px-4 py-2">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{uploadedPdf}</span>
+                  <button
+                    onClick={handleDelete}
+                    className="ml-2 text-red-600 hover:text-red-700 transition-colors duration-200"
+                    title="Delete PDF"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )
+          )}
+
+          {/* Chat Interface */}
+          {!showUploadSection && (
+            <div className="mt-4">
+              {/* Messages Container */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+                <div className="h-[calc(100vh-250px)] overflow-y-auto p-4 space-y-4">
+                  {messages.map((message, index) => (
+                    <div
+                      key={index}
+                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                          message.role === 'user'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                        }`}
+                        dangerouslySetInnerHTML={{ __html: message.content }}
+                      />
+                    </div>
+                  ))}
+                  {isAsking && (
+                    <div className="flex justify-start">
+                      <div className="bg-gray-200 dark:bg-gray-700 rounded-lg px-4 py-2 text-gray-900 dark:text-gray-100">
+                        <span className="animate-pulse">...</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Chat Input */}
+                <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+                  <div className="flex space-x-4">
+                    <input
+                      type="text"
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      placeholder="Ask a question about your PDF..."
+                      className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={isAsking || !inputMessage.trim()}
+                      className={`px-6 py-2 rounded-lg text-white font-medium ${
+                        isAsking || !inputMessage.trim()
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-blue-600 hover:bg-blue-700'
+                      } transition-colors duration-200`}
+                    >
+                      Send
+                    </button>
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* Chat Input - Keep at bottom */}
-            <div className="border-t border-gray-200 dark:border-gray-700 p-4">
-              <div className="max-w-4xl mx-auto flex space-x-4">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Ask a question about your PDF..."
-                  className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={isAsking || !inputMessage.trim()}
-                  className={`px-6 py-2 rounded-lg text-white font-medium ${
-                    isAsking || !inputMessage.trim()
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700'
-                  } transition-colors duration-200`}
-                >
-                  Send
-                </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Message Display */}
-        {message && (
-          <div className={`
-            mt-4 text-center p-4 rounded-lg
-            ${message.type === 'success' 
-              ? 'bg-green-100 text-green-800 dark:bg-green-800/20 dark:text-green-400'
-              : 'bg-red-100 text-red-800 dark:bg-red-800/20 dark:text-red-400'}
-          `}>
-            {message.text}
-          </div>
-        )}
+          {/* Message Display */}
+          {message && (
+            <div className={`
+              mt-4 text-center p-4 rounded-lg
+              ${message.type === 'success' 
+                ? 'bg-green-100 text-green-800 dark:bg-green-800/20 dark:text-green-400'
+                : 'bg-red-100 text-red-800 dark:bg-red-800/20 dark:text-red-400'}
+            `}>
+              {message.text}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
