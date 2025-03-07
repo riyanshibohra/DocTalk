@@ -1,10 +1,12 @@
+<div align="center">
+  
 # DocTalk 🤖
 
 An intelligent document interaction system that allows users to chat with their documents using advanced language models.
 
 ## 🛠️ Tech Stack
 
-<div align="center">
+
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
   <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
   <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
