@@ -2,7 +2,7 @@
   
 # DocTalk 🤖
 
-An intelligent document interaction system that allows users to chat with their documents using advanced language models.
+An Intelligent Document Interaction System that allows users to chat with their documents using advanced Language Models.
 
 ## 🛠️ Tech Stack
 
